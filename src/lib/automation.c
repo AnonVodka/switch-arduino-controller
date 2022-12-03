@@ -113,8 +113,7 @@ void set_leds(enum led_state leds)
 
 
 /* Send an update with new button/controller state */
-void send_update(enum button_state buttons, enum d_pad_state d_pad,
-	struct stick_coord l_stick, struct stick_coord r_stick)
+void send_update(enum button_state buttons, enum d_pad_state d_pad, struct stick_coord l_stick, struct stick_coord r_stick)
 {
 	sent_data.buttons = buttons;
 	sent_data.d_pad = d_pad;
@@ -125,8 +124,7 @@ void send_update(enum button_state buttons, enum d_pad_state d_pad,
 }
 
 /* Send a button sequence */
-void send_button_sequence(const struct button_d_pad_state sequence[],
-	size_t sequence_length)
+void send_button_sequence(const struct button_d_pad_state sequence[], size_t sequence_length)
 {
 	for (size_t pos = 0 ; pos < sequence_length ; pos += 1) {
 		const struct button_d_pad_state* cur = &sequence[pos];

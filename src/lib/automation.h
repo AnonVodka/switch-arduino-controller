@@ -112,16 +112,14 @@ struct button_d_pad_state {
 void set_leds(enum led_state leds);
 
 /* Send an update with new button/controller state */
-void send_update(enum button_state buttons, enum d_pad_state d_pad,
-	struct stick_coord l_stick, struct stick_coord r_stick);
+void send_update(enum button_state buttons, enum d_pad_state d_pad, struct stick_coord l_stick, struct stick_coord r_stick);
 
 /*
  * Send a button sequence.
  * The first parameter is a pointer to an array of states to run in sequence.
  * The second parameter is the number of entries in the array.
  */
-void send_button_sequence(const struct button_d_pad_state sequence[],
-	size_t sequence_length);
+void send_button_sequence(const struct button_d_pad_state sequence[], size_t sequence_length);
 
 /*
  * Macro to simplify the use of send_button_sequence.

@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+from subprocess import run
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("image", metavar="image to flash", type=str)
+
+image = parser.parse_args().image
+
+input(f"Press enter to compile {image}...")
+run(f"make {image}.hex".split(" "))
+
+input(f"Press enter to flash {image}...")
+run(f"make flash-{image}".split(" "))

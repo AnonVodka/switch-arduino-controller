@@ -3,56 +3,60 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-/* LED (digital pin 13) on port B */
-#define PORTB_LED (1 << 5)
-
-/* Button on digital pin 12 port B */
-#define PORTB_BUTTON (1 << 4)
-
-/* Buzzer (digital pin 2) on port D */
-#define PORTD_BUZZER (1 << 2)
-
-/* Button minimum hold time (ms) -- avoid counting bounces as presses */
-#define BUTTON_HOLD_TIME_MS 20
-
-
-/* Structure to track button presses */
-struct button_info {
-	uint8_t hold_time; /* Time the button was held down */
-	uint8_t count; /* Number of times the button was pressed */
-};
-
+struct pin_t  led_pin		= { PIN_LED,	_PORTB, true };
+struct pin_t  buzzer_pin	= { PIN_BUZZER, _PORTB, true };
 
 /* Static functions */
 static void track_button(struct button_info* info);
-static uint8_t get_tracked_presses(const struct button_info* info);
+static uint8_t get_tracked_presses(struct button_info* info);
 
-
-/* Initializes the LED/button interface. */
-void init_led_button(void)
+/* Initialize the give pin */
+void init_pin(struct pin_t pin)
 {
-	/* Configure LED as output, buzzer as output, button as input */
-	DDRB = (DDRB | PORTB_LED) & (~PORTB_BUTTON);
-	DDRD |= PORTD_BUZZER;
-
-	/* Enable pullup on button */
-	PORTB |= PORTB_BUTTON;
+	if (pin.port == _PORTC) {
+		if (pin.output) {
+			DDRC |= pin.pin;
+			PORTC &= ~pin.pin;
+		}
+		else {
+			DDRC &= ~pin.pin;
+			PORTC |= pin.pin;
+		}
+	}
+	else if (pin.port == _PORTB) {
+		if (pin.output) {
+			DDRB |= pin.pin;
+			PORTB &= ~pin.pin;
+		}
+		else {
+			DDRB &= ~pin.pin;
+			PORTB |= pin.pin;
+		}
+	}
+	else if (pin.port == _PORTD) {
+		if (pin.output) {
+			DDRD |= pin.pin;
+			PORTD &= ~pin.pin;
+		}
+		else {
+			DDRD &= ~pin.pin;
+			PORTD |= pin.pin;
+		}
+	}
 }
 
-
 /* Wait the specified amount of time for the button to be pressed. */
-bool wait_for_button_timeout(uint16_t led_on_time_ms, uint16_t led_off_time_ms,
-	uint16_t timeout_ms)
+bool wait_for_button_timeout(uint16_t led_on_time_ms, uint16_t led_off_time_ms, uint16_t timeout_ms, struct pin_t button)
 {
 	const uint16_t led_cycle_time_ms = led_on_time_ms + led_off_time_ms;
 	uint16_t led_cycle_pos = 1;
-	struct button_info info = {0, 0};
+	struct button_info info = {0, 0, button};
 
 	while (timeout_ms > 0) {
 		if (led_cycle_pos == 1) {
-			PORTB |= PORTB_LED;
+			set_pin(&led_pin, true);
 		} else if (led_cycle_pos == led_on_time_ms) {
-			PORTB &= ~PORTB_LED;
+			set_pin(&led_pin, false);
 		} else if (led_cycle_pos == led_cycle_time_ms) {
 			led_cycle_pos = 0;
 		}
@@ -69,26 +73,25 @@ bool wait_for_button_timeout(uint16_t led_on_time_ms, uint16_t led_off_time_ms,
 
 	/* Will wait for the button to be released */
 	uint8_t presses = get_tracked_presses(&info);
-	PORTB &= ~PORTB_LED;
+	set_pin(&led_pin, false);
 
 	return presses > 0;
 }
 
 
 /* Blink the LED and wait for the user to press the button. */
-uint8_t count_button_presses(uint16_t led_on_time_ms,
-	uint16_t led_off_time_ms)
+uint8_t count_button_presses(uint16_t led_on_time_ms, uint16_t led_off_time_ms, struct pin_t button)
 {
 	const uint16_t led_cycle_time_ms = led_on_time_ms + led_off_time_ms;
 	uint16_t led_cycle_pos = 1;
-	struct button_info info = {0, 0};
+	struct button_info info = {0, 0, button};
 	uint16_t timeout_ms = 0;
 
 	while ((info.count == 0) || (timeout_ms > 0)) {
 		if (led_cycle_pos == 1) {
-			PORTB |= PORTB_LED;
+			set_pin(&led_pin, true);
 		} else if (led_cycle_pos == led_on_time_ms) {
-			PORTB &= ~PORTB_LED;
+			set_pin(&led_pin, false);
 		} else if (led_cycle_pos == led_cycle_time_ms) {
 			led_cycle_pos = 0;
 		}
@@ -103,27 +106,26 @@ uint8_t count_button_presses(uint16_t led_on_time_ms,
 		led_cycle_pos += 1;
 	}
 
-	PORTB &= ~PORTB_LED;
+	set_pin(&led_pin, false);
 
 	/* Will wait for the button to be released */
 	return get_tracked_presses(&info);
 }
 
 /* Wait a fixed amount of time, blinking the LED */
-uint8_t delay(uint16_t led_on_time_ms, uint16_t led_off_time_ms,
-	uint16_t delay_ms)
+uint8_t delay(uint16_t led_on_time_ms, uint16_t led_off_time_ms, uint16_t delay_ms, struct pin_t button)
 {
 	uint16_t led_cycle_time_ms = led_on_time_ms + led_off_time_ms;
 	uint16_t led_cycle_pos = 1;
-	struct button_info info = {0, 0};
+	struct button_info info = {0, 0, button};
 	uint16_t remaining = delay_ms;
 
 	while (remaining > 0) {
 		if (led_on_time_ms != 0) {
 			if (led_cycle_pos == 1) {
-				PORTB |= PORTB_LED;
+				set_pin(&led_pin, true);
 			} else if (led_cycle_pos == led_on_time_ms) {
-				PORTB &= ~PORTB_LED;
+				set_pin(&led_pin, false);
 			} else if (led_cycle_pos == led_cycle_time_ms) {
 				led_cycle_pos = 0;
 			}
@@ -135,7 +137,7 @@ uint8_t delay(uint16_t led_on_time_ms, uint16_t led_off_time_ms,
 		led_cycle_pos += 1;
 	}
 
-	PORTB &= ~PORTB_LED;
+	set_pin(&led_pin, false);
 
 	if (delay_ms <= BUTTON_HOLD_TIME_MS) {
 		/* The wait delay is lower than the minimum hold time, so
@@ -151,11 +153,15 @@ uint8_t delay(uint16_t led_on_time_ms, uint16_t led_off_time_ms,
 
 
 /* Emit a brief beep the buzzer. */
-void beep(void)
+void beep(uint8_t amt)
 {
-	PORTD |= PORTD_BUZZER;
-	_delay_ms(1);
-	PORTD &= ~PORTD_BUZZER;
+	for ( uint8_t i = 0; i < amt; i++) {
+		set_pin(&buzzer_pin, true);
+		_delay_ms(1);
+		set_pin(&buzzer_pin, false);
+		if (i != amt-1)
+			_delay_ms(50);
+	}
 }
 
 
@@ -166,9 +172,7 @@ void beep(void)
  */
 void track_button(struct button_info* info)
 {
-	bool button_held = ((PINB & PORTB_BUTTON) == 0);
-
-	if (button_held) {
+	if (button_held(&info->button)) {
 		/* The button is held; increment the hold time */
 		info->hold_time += 1;
 
@@ -189,12 +193,12 @@ void track_button(struct button_info* info)
 /*
  * Count the button presses after a tracking operation.
  */
-uint8_t get_tracked_presses(const struct button_info* info)
+uint8_t get_tracked_presses(struct button_info* info)
 {
 	uint8_t count = info->count;
 
 	/* Wait for the button to be released */
-	while ((PINB & PORTB_BUTTON) == 0) {
+	while (button_held(&info->button)) {
 		/* Nothing */
 	}
 
@@ -207,3 +211,48 @@ uint8_t get_tracked_presses(const struct button_info* info)
 	return count;
 }
 
+
+/*
+ * For buttons, check wether the button is held or not 
+ */
+bool button_held(struct pin_t* self) {
+  if (self->port == _PORTC) {
+    return (PINC & self->pin) == 0;
+  }
+  else if (self->port == _PORTB) {
+    return (PINB & self->pin) == 0;
+  }
+  else if (self->port == _PORTD) {
+    return (PIND & self->pin) == 0;
+  }
+  return false;
+}
+/*
+ * Determins wether or not the pin should be HIGH or LOW
+ */
+void set_pin(struct pin_t* self, bool state) {
+  if (self->port == _PORTC) {
+    if (state) {
+    	PORTC |= self->pin;
+    }
+    else {
+    	PORTC &= ~self->pin;
+    }
+  }
+  else if (self->port == _PORTB) {
+    if (state) {
+    	PORTB |= self->pin;
+    }
+    else {
+    	PORTB &= ~self->pin;
+    }
+  }
+  else if (self->port == _PORTD) {
+    if (state) {
+    	PORTD |= self->pin;
+    }
+    else {
+    	PORTD &= ~self->pin;
+    }
+  }
+}

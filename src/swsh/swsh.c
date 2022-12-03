@@ -9,41 +9,42 @@
 
 /* Static functions */
 static void temporary_control(void);
-static void repeat_press_a(void);
+static void spam_a_button(void);
 static void max_raid_menu(void);
 static void max_raid_setup(void);
 static void light_pillar_setup_with_control(void);
-static void repeat_change_raid(void);
-static void repeat_change_raid_initial_confirm(void);
+static void repeat_change_raid_pokemon(bool farmWatts);
+static void repeat_change_raid_pokemon_initial_confirm(int waitTime);
 static void light_pillar_setup(void);
 static void set_text_speed(bool fast_speed, bool save);
 static void use_wishing_piece_and_pause(void);
 static void restart_game(void);
-static void change_raid(void);
+static void change_raid_pokemon(void);
+
 static void auto_breeding(void);
 static void reposition_player(bool first_time);
 static void go_to_nursery_helper(void);
 static void get_egg(void);
 static void move_in_circles(uint16_t cycles, bool go_up_first);
 static bool hatch_egg(void);
-static void release_full_boxes(void);
-static void scan_boxes(void);
-static void position_box_cursor_topleft(void);
-static bool for_each_box_pos(bool top_left_start, bool (*callback)(void));
-static bool release_from_box(void);
-static bool check_button_press(void);
 
+struct pin_t main_btn   = { PIN_MAIN_BUTTON, _PORTD, false };
+struct pin_t alternate_btn   = { PIN_TEST_BUTTON, _PORTD, false };
 
 int main(void)
 {
 	init_automation();
-	init_led_button();
+	init_pin(led_pin);
+	init_pin(buzzer_pin);
+	init_pin(main_btn);
+	init_pin(alternate_btn);
 
 	/* Initial beep to confirm that the buzzer works */
-	beep();
+	beep(1);
 
 	/* Wait for the user to press the button (should be on the Switch main menu) */
-	count_button_presses(100, 100);
+	count_button_presses(100, 100, main_btn);
+	beep(2);
 
 	/* Set the virtual controller as controller 1 */
 	switch_controller(REAL_TO_VIRT);
@@ -55,10 +56,10 @@ int main(void)
 		pause_automation();
 
 		/* Feature selection menu */
-		uint8_t count = count_button_presses(100, 900);
+		uint8_t count = count_button_presses(100, 900, main_btn);
 
 		for (uint8_t i = 0 ; i < count ; i += 1) {
-			beep();
+			beep(1);
 			_delay_ms(100);
 		}
 
@@ -68,7 +69,7 @@ int main(void)
 			break;
 
 			case 2:
-				repeat_press_a();
+				spam_a_button();
 			break;
 
 			case 3:
@@ -80,16 +81,20 @@ int main(void)
 			break;
 
 			case 5:
-				release_full_boxes();
+				set_clock_to_manual_from_auto(true);
+				_delay_ms(5000);
+				change_clock_year(true, 2);
+				_delay_ms(5000);
+				set_clock_to_auto_from_manual(true);
 			break;
 
 			case 6:
-				scan_boxes();
+				change_clock_day(true, 1);
 			break;
 
 			default:
 				/* Wrong selection */
-				delay(100, 200, 1500);
+				delay(100, 200, 1500, main_btn);
 			break;
 		}
 	}
@@ -107,7 +112,7 @@ void temporary_control(void)
 	switch_controller(VIRT_TO_REAL);
 
 	/* Wait for the user to press the button (should be on the Switch main menu) */
-	count_button_presses(100, 100);
+	count_button_presses(100, 100, main_btn);
 
 	/* Set the virtual controller as controller 1 */
 	switch_controller(REAL_TO_VIRT);
@@ -117,10 +122,12 @@ void temporary_control(void)
 /*
  * Press A repetitively until the button is pressed.
  */
-static void repeat_press_a(void)
+static void spam_a_button(void)
 {
 	uint8_t count = 0;
-	while (delay(0, 0, 50) == 0) {
+	// run the code bellow until delay returns 1
+	// this means that the user has pressed the button
+	while (delay(0, 0, 50, main_btn) == 0) {
 		switch (count % 4) {
 			case 0:
 				set_leds(NO_LEDS);
@@ -159,10 +166,10 @@ void max_raid_menu(void)
 	pause_automation();
 
 	for (;;) {
-		uint8_t subfeature = count_button_presses(500, 500);
+		uint8_t subfeature = count_button_presses(500, 500, main_btn);
 
 		for (uint8_t i = 0 ; i < subfeature ; i += 1) {
-			beep();
+			beep(1);
 			_delay_ms(200);
 		}
 
@@ -178,13 +185,20 @@ void max_raid_menu(void)
 			break;
 
 			case 3: /* Change existing Wishing Piece Raid */
-				repeat_change_raid();
+				repeat_change_raid_pokemon(false);
+				return;
+			break;
+
+			case 4: /* Watt farming, same as above, 
+					 * but we dont care if the user might want to keep the pokemon 
+					 */
+				repeat_change_raid_pokemon(true);
 				return;
 			break;
 
 			default:
 				/* Wrong selection */
-				delay(100, 200, 1500);
+				delay(100, 200, 1500, main_btn);
 			break;
 		}
 	}
@@ -201,7 +215,7 @@ void max_raid_setup(void)
 	light_pillar_setup();
 
 	/* While we are out of the game, set the Switch’s clock to manual */
-	set_clock_to_manual_from_any(/* in_game */ false);
+	set_clock_to_manual_from_auto(/* in_game */ false);
 
 	/* Get back to the game, wait a bit for it to finish saving and close the
 	   text box. */
@@ -221,7 +235,7 @@ void max_raid_setup(void)
 		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	25 },	/* Wait */
 	);
 
-	repeat_change_raid_initial_confirm();
+	repeat_change_raid_pokemon_initial_confirm(5000);
 }
 
 
@@ -249,7 +263,6 @@ void light_pillar_setup_with_control(void)
 	temporary_control();
 }
 
-
 /*
  * Repeatedly change the Raid from a Den activated with a Wishing Piece. The
  * first change is done immediately without confirmation, but the next ones ask
@@ -258,9 +271,9 @@ void light_pillar_setup_with_control(void)
  *
  * Automatically sets the clock manual.
  */
-void repeat_change_raid(void)
+void repeat_change_raid_pokemon(bool farmWatts)
 {
-	set_clock_to_manual_from_any(/* in_game */ true);
+	set_clock_to_manual_from_auto(/* in_game */ true);
 
 	/* Open the Raid menu */
 	SEND_BUTTON_SEQUENCE(
@@ -269,10 +282,10 @@ void repeat_change_raid(void)
 	);
 
 	/* Perform first change immediately */
-	change_raid();
+	change_raid_pokemon();
 
 	/* Wait for user confirmation on the next changes, and give them control */
-	repeat_change_raid_initial_confirm();
+	repeat_change_raid_pokemon_initial_confirm(farmWatts ? 1500 : 5000);
 }
 
 
@@ -283,18 +296,18 @@ void repeat_change_raid(void)
  *
  * The clock must be set to manual.
  */
-void repeat_change_raid_initial_confirm(void)
+void repeat_change_raid_pokemon_initial_confirm(int waitTime)
 {
 	for (;;) {
 		/* Ask the user to look at the Pokémon in the Max Raid Battle */
-		beep();
+		beep(1);
 
-		/* Do the user wants to do this Raid? */
-		if (wait_for_button_timeout(250, 250, 5000)) {
+		/* Is the user done farming? */
+		if (wait_for_button_timeout(250, 250, waitTime, main_btn)) {
 			/* Restore the clock */
 			set_leds(NO_LEDS);
 			set_clock_to_auto_from_manual(/* in_game */ true);
-
+			
 			/* Give control temporarily */
 			temporary_control();
 
@@ -303,7 +316,7 @@ void repeat_change_raid_initial_confirm(void)
 		}
 
 		/* Change the Raid */
-		change_raid();
+		change_raid_pokemon();
 	}
 }
 
@@ -320,13 +333,13 @@ void light_pillar_setup(void)
 
 	for (;;) {
 		/* Ask the user to look at the light pillar color */
-		beep();
+		beep(1);
 
 		/* Drop the Wishing Piece in the den */
 		use_wishing_piece_and_pause();
 
 		/* Let the user choose what to do */
-		if (wait_for_button_timeout(250, 250, 5000)) {
+		if (wait_for_button_timeout(250, 250, 5000, main_btn)) {
 			/* User confirmed, continue */
 			break;
 		}
@@ -462,12 +475,12 @@ void restart_game(void)
 
 
 /*
- * From an open raid menu created with a Wishing Piece, start an stop the raid while
+ * From an open raid menu created with a Wishing Piece, start and stop the raid while
  * changing the system clock. This will cause the Pokémon in the raid to change.
  *
  * The clock must be set to manual.
  */
-void change_raid(void)
+void change_raid_pokemon(void)
 {
 	/* Set the clock backwards */
 	set_leds(TX_LED);
@@ -476,9 +489,9 @@ void change_raid(void)
 	/* Start the raid, but prepare to cancel it */
 	SEND_BUTTON_SEQUENCE(
 		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter “multiple combat” */
-		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	55 },	/* Wait */
-		{ BT_B,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Open cancel menu (speed up text) */
-		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	10 },	/* Wait a bit */
+		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	100 },	/* Wait */
+		{ BT_B,		DP_NEUTRAL,	SEQ_HOLD,	10  },	/* Open cancel menu (speed up text) */
+		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	15 },	/* Wait a bit */
 	);
 
 	/* Set the clock forward */
@@ -487,7 +500,7 @@ void change_raid(void)
 	/* Cancel the raid (exiting it), then re-enter it */
 	SEND_BUTTON_SEQUENCE(
 		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Cancel raid */
-		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	120 },	/* Cancelling takes a loong time */
+		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	130 },	/* Cancelling takes a loong time */
 		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	15 },	/* Absorb the watts (speed up text) */
 		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Release the A button */
 		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	15 },	/* Validate second message */
@@ -530,12 +543,12 @@ void auto_breeding(void)
 	pause_automation();
 
 	for (;;) {
-		uint8_t cycle_idx = count_button_presses(500, 500) - 1;
+		uint8_t cycle_idx = count_button_presses(500, 500, main_btn) - 1;
 
 		if (cycle_idx < (sizeof(egg_cycles) / sizeof(*egg_cycles))) {
 			/* Selection OK, beep once per press */
 			for (uint8_t i = 0 ; i <= cycle_idx ; i += 1) {
-				beep();
+				beep(1);
 				_delay_ms(200);
 			}
 
@@ -546,7 +559,7 @@ void auto_breeding(void)
 		}
 
 		/* Wrong selection */
-		delay(100, 200, 1500);
+		delay(100, 200, 1500, main_btn);
 	}
 
 	/* FIXME: Find a way to ensure the player character is on their bike instead of just
@@ -735,7 +748,7 @@ bool hatch_egg(void)
 	)
 
 	/* Egg hatching animation */
-	if (delay(250, 250, 12500)) {
+	if (delay(250, 250, 12500, main_btn)) {
 		return true;
 	}
 
@@ -747,168 +760,4 @@ bool hatch_egg(void)
 	)
 
 	return false;
-}
-
-
-/*
- * From the Box menu, releases all Pokémon in the current box, then move
- * to the next Box. User confirmation is asked for each Box. The Boxes must
- * be completely full.
- */
-void release_full_boxes(void)
-{
-	position_box_cursor_topleft();
-
-	bool cursor_topleft = true;
-
-	for (;;) {
-		/* Wait for user confirmation */
-		beep();
-		if (count_button_presses(500, 500) > 1) {
-			/* User cancelled, we are done */
-			return;
-		}
-
-		/* Release the Box content */
-		for_each_box_pos(cursor_topleft, &release_from_box);
-
-		/* The cursor position was toggled by the operation */
-		cursor_topleft ^= true;
-
-		/* Move to the next Box */
-		SEND_BUTTON_SEQUENCE(
-			{ BT_R,	DP_NEUTRAL,	SEQ_MASH,	1 },	/* Next Box */
-		);
-	}
-}
-
-
-/*
- * Moves the cursor around each Pokémon in each Box, so their stats are
- * briefly shown. Stops the process when the button is held down.
- */
-void scan_boxes(void)
-{
-	position_box_cursor_topleft();
-
-	bool cursor_topleft = true;
-
-	for (;;) {
-		/* Move around in the Box */
-		if (for_each_box_pos(cursor_topleft, &check_button_press)) {
-			/* The user stopped the operation */
-			break;
-		}
-
-		/* The cursor position was toggled by the operation */
-		cursor_topleft ^= true;
-
-		/* Move to the next Box */
-		SEND_BUTTON_SEQUENCE(
-			{ BT_R,		DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Next Box */
-			{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	25 },	/* Wait for Box */
-		);
-	}
-
-	/* Give back control to the user */
-	temporary_control();
-}
-
-
-/*
- * Position the cursor to the top left Pokémon in the Box menu.
- */
-void position_box_cursor_topleft(void)
-{
-	/* We hold the D-pad to put the cursor in a known position (mashing it does
-	   not work since it makes the cursor roll around the edges of the screen).
-	   We need to avoir getting the cursor on the Box title since the D-pad
-	   will start changing the selected Box. The screen layout also tend to
-	   make the cursor stuck in random positions if diagonal directions are
-	   used.*/
-
-	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,	DP_BOTTOM,	SEQ_HOLD,	25 },	/* Bottom row */
-		{ BT_NONE,	DP_LEFT,	SEQ_HOLD,	25 },	/* Last Pokémon */
-		{ BT_NONE,	DP_TOP,		SEQ_MASH,	5  },	/* First team Pokémon */
-		{ BT_NONE,	DP_RIGHT,	SEQ_MASH,	1  },	/* Top/Left Box Pokémon */
-	);
-}
-
-
-/*
- * Calls a callback after positioning the cursor on each Pokémon in the Box.
- * The starting position can either be the top left Pokémon or the bottom
- * right. The ending cursor position will be the reverse of the starting
- * cursor position.
- * Stops the process and return true if the callback returns true; else
- * returns false.
- */
-bool for_each_box_pos(bool top_left_start, bool (*callback)(void))
-{
-	/* Do we go left on even rows (row 0, row 2, etc)? */
-	uint8_t left_on_even = (top_left_start ? 0 : 1);
-
-	/* Which direction to use to move between rows? */
-	enum d_pad_state change_row_dir = (top_left_start ? DP_BOTTOM : DP_TOP);
-
-	for (uint8_t row = 0 ; row < 5 ; row += 1) {
-		for (uint8_t col = 0 ; col < 5 ; col += 1) {
-			enum d_pad_state move_dir;
-
-			if (callback()) {
-				return true;
-			}
-
-			if ((row % 2) == left_on_even) {
-				move_dir = DP_RIGHT;
-			} else {
-				move_dir = DP_LEFT;
-			}
-
-			SEND_BUTTON_SEQUENCE(
-				{ BT_NONE,	move_dir,	SEQ_MASH,	1 },
-			);
-		}
-
-		if (callback()) {
-			return true;
-		}
-
-		if (row < 4) {
-			SEND_BUTTON_SEQUENCE(
-				{ BT_NONE,	change_row_dir,	SEQ_MASH,	1 },
-			);
-		}
-	}
-
-	return false;
-}
-
-
-/*
- * Release from the Box the Pokémon on which the cursor is on.
- * Returns false so for_each_box_pos continues execution.
- */
-bool release_from_box(void)
-{
-	SEND_BUTTON_SEQUENCE(
-		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	8  },	/* Open menu */
-		{ BT_NONE,	DP_TOP,		SEQ_MASH,	2  },	/* Go to option */
-		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	20  },	/* Select option */
-		{ BT_NONE,	DP_TOP,		SEQ_MASH,	1  },	/* Go to Yes */
-		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	25  },	/* Validate dialog 1 */
-		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Release 1 */
-		{ BT_A,		DP_NEUTRAL,	SEQ_HOLD,	10  },	/* Validate dialog 2 */
-	);
-
-	return false;
-}
-
-/*
- * Checks if the button is pressed for a short period of time.
- */
-bool check_button_press(void)
-{
-	return delay(0, 0, 20) != 0;
 }

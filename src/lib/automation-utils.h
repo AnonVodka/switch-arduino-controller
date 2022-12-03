@@ -64,6 +64,17 @@ void set_clock_to_manual_from_any(bool in_game);
 void set_clock_to_auto_from_manual(bool in_game);
 
 /*
+ * Configure the Switch’s clock to manual mode, starting from the game or the
+ * the main menu.
+ *
+ * The clock needs to be in automatic mode.
+ *
+ * The first parameter indicates that the operations starts in-game (and will end
+ * in-game)
+ */
+void set_clock_to_manual_from_auto(bool in_game);
+
+/*
  * Apply an offset to the Switch’s clock’s year.
  *
  * The clock needs to be in manual mode.
@@ -74,5 +85,16 @@ void set_clock_to_auto_from_manual(bool in_game);
  * The third parameter allows setting the RX/TX LEDs once the operation completes.
  */
 void change_clock_year(bool in_game, int8_t offset);
+
+/*
+ * Apply an ioffset to the Switch's clock's day
+ * 
+ *  The clock needs to be in manual mode.
+ * 
+ * The first parameter indicates that the operations starts in-game (and will end
+ * in-game)
+ * The second parameter is the day offset to apply (-1: substract a day, 1: add a day)
+ */
+void change_clock_day(bool in_game, int8_t offset);
 
 #endif
