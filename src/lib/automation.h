@@ -41,6 +41,8 @@ struct stick_coord {
 #define S_COORD(X, Y) ((struct stick_coord){(X), (Y)})
 
 /* Predefined stick coordinates */
+/*  top left is 0,0
+	bottom right is 255,255 */
 #define S_TOP S_COORD(128, 0)
 #define S_TOPRIGHT S_COORD(219, 37)
 #define S_RIGHT S_COORD(255, 128)
@@ -78,19 +80,19 @@ enum d_pad_state {
 
 /* Buttons state */
 enum button_state {
-	BT_NONE = 0x0000, /* No buttons are pressed */
-	BT_Y =    0x0001, /* The Y button is pressed */
-	BT_B =    0x0002, /* The B button is pressed */
-	BT_A =    0x0004, /* The A button is pressed */
-	BT_X =    0x0008, /* The X button is pressed */
-	BT_L =    0x0010, /* The L button is pressed */
-	BT_R =    0x0020, /* The R button is pressed */
-	BT_ZL =   0x0040, /* The ZL button is pressed */
-	BT_ZR =   0x0080, /* The ZR button is pressed */
-	BT_M =    0x0100, /* The -/Select button is pressed */
-	BT_P =    0x0200, /* The +/Start button is pressed */
-	BT_H =    0x1000, /* The Home button is pressed */
-	BT_C =    0x2000, /* The Capture button is pressed */
+	BT_NONE 	=	0x0000, /* No buttons are pressed */
+	BT_Y 		= 	0x0001, /* The Y button is pressed */
+	BT_B 		= 	0x0002, /* The B button is pressed */
+	BT_A 		= 	0x0004, /* The A button is pressed */
+	BT_X 		= 	0x0008, /* The X button is pressed */
+	BT_L 		= 	0x0010, /* The L button is pressed */
+	BT_R 		= 	0x0020, /* The R button is pressed */
+	BT_ZL 		= 	0x0040, /* The ZL button is pressed */
+	BT_ZR 		= 	0x0080, /* The ZR button is pressed */
+	BT_MINUS 	= 	0x0100, /* The -/Select button is pressed */
+	BT_PLUS 	= 	0x0200, /* The +/Start button is pressed */
+	BT_HOME 	= 	0x1000, /* The Home button is pressed */
+	BT_C 		= 	0x2000, /* The Capture button is pressed */
 
 };
 

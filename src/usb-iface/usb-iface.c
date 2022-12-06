@@ -205,14 +205,14 @@ bool refresh_controller_data(void)
 			notify_main_uc = true;
 		} else {
 			/* Invalid data received */
-			panic(2);
+			panic(5);
 		}
 
 	} else if (memcmp(out_data, neutral_controller_data, DATA_SIZE - 1) != 0) {
 		/* The receive buffer was not full, and the output data is not neutral. */
 		if (recv_buffer_count == 0) {
 			/* The main µC did not send any message on this cycle */
-			panic(2);
+			panic(8);
 		} else {
 			/* The main µC failed to send a message sufficiently quickly. Note that this
 			   is not an error if the current output data is neutral; after sending

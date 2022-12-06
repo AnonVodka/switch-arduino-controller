@@ -37,7 +37,7 @@ void switch_controller(enum switch_mode mode)
 			{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Register as controller 1 */
 			{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	15 },	/* Wait for registration */
 
-			{ BT_H,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Return to the main menu */
+			{ BT_HOME,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Return to the main menu */
 			{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	25 },	/* Wait for the main menu */
 		);
 
@@ -50,7 +50,7 @@ void switch_controller(enum switch_mode mode)
 void go_to_main_menu(void)
 {
 	SEND_BUTTON_SEQUENCE(
-		{ BT_H,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Go to main menu */
+		{ BT_HOME,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Go to main menu */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	25 },	/* Wait for the main menu */
 	);
 }
@@ -60,7 +60,7 @@ void go_to_main_menu(void)
 void go_to_game(void)
 {
 	SEND_BUTTON_SEQUENCE(
-		{ BT_H,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Go back to the game */
+		{ BT_HOME,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Go back to the game */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	40 },	/* Wait for the game */
 	);
 }

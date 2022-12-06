@@ -442,7 +442,7 @@ void use_wishing_piece_and_pause(void)
 		 */
 
 		{ BT_NONE,	DP_NEUTRAL, SEQ_HOLD,	40 },	/* Let the light pillar appear */
-		{ BT_H,		DP_NEUTRAL,	SEQ_HOLD,	3  },	/* Interrupt save */
+		{ BT_HOME,		DP_NEUTRAL,	SEQ_HOLD,	3  },	/* Interrupt save */
 		{ BT_NONE,	DP_NEUTRAL, SEQ_HOLD,	1  },	/* Release buttons */
 	);
 }
@@ -566,7 +566,7 @@ void auto_breeding(void)
 	   toggling the state. For now, just require the player to start on the bike. */
 	#ifdef PUT_PLAYER_ON_BIKE
 	SEND_BUTTON_SEQUENCE(
-		{ BT_P,		DP_NEUTRAL,	SEQ_HOLD,	1  }, /* Get on bike */
+		{ BT_PLUS,		DP_NEUTRAL,	SEQ_HOLD,	1  }, /* Get on bike */
 		{ BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	25 }, /* Wait for bike animation to finish */
 	);
 	#endif

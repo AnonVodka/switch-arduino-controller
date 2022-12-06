@@ -13,7 +13,7 @@ all: swsh.hex usb-iface.hex test.hex visc.hex
 # flash it.
 src/swsh.elf: src/swsh/swsh.o src/lib/automation.o src/lib/automation-utils.o src/lib/user-io.o
 src/test.elf: src/test/test.o src/lib/automation.o src/lib/automation-utils.o src/lib/user-io.o
-src/visc.elf: src/visc/visc.o src/lib/automation.o src/lib/automation-utils.o src/lib/user-io.o
+src/visc.elf: src/visc/visc.o src/lib/automation.o src/lib/automation-utils.o src/lib/user-io.o src/lib/utils.o
 
 flash-%: %.hex
 	avrdude -v -p atmega328p -c $(PROGRAMMER) -P usb -U flash:w:$<:i

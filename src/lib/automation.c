@@ -34,7 +34,7 @@ bool init_automation(void)
 	#error Change ENABLE_DOUBLESPEED and the UCSR0A enabling next line
 	#endif
 
-	UCSR0A &= ~_BV(U2X0); /* This bit must be set iff ENABLE_DOUBLESPEED = 1 */
+	UCSR0A &= ~_BV(U2X0); /* This bit must be set if ENABLE_DOUBLESPEED = 1 */
 
 	/* Enable 8-bit mode, RX, and TX */
 	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);

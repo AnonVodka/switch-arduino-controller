@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "*.meta": "xml",
+        "*.wsb": "xml",
+        "*.sp": "sourcepawn",
+        "*.qss": "css",
+        "*.ino": "cpp",
+        "*.gui": "json",
+        ".env": "ini",
+        "stdint.h": "c",
+        "user-io.h": "c",
+        "automation-utils.h": "c"
+    }
+}
