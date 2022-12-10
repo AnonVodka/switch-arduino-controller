@@ -82,10 +82,10 @@ void make_egg_sandwich() {
     // choose "great peanut butter sandwhich"
     // wait 8 seconds for the sandwhich to be made
     SEND_BUTTON_SEQUENCE(
-        { BT_NONE,  DP_BOTTOM,  SEQ_MASH,   5   }, // got down
+        { BT_NONE,  DP_BOTTOM,  SEQ_MASH,   7   }, // got down
         { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   3   },
-        { BT_NONE,  DP_RIGHT,   SEQ_MASH,   1   }, // go right
-        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   2   },
+        //{ BT_NONE,  DP_RIGHT,   SEQ_MASH,   1   }, // go right
+        //{ BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   2   },
         { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   }, // choose sandwich
         { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   15  },
         { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   }, // choose pick
@@ -197,75 +197,26 @@ void get_items_or_eggs_from_basket(bool facing_basket, bool get_eggs) {
     if (!facing_basket)
         face_basket();
 
-    if (!get_eggs) {
-        // we dont want to get any eggs from the basket
-        // so we can press a once and then spam b
-        // since there wont be a popup asking us if we want to pick the item up
-        // this is used for the egg item duplication glitch
+    // we're trying to pick up eggs from the basket
+    // we we press a once and then spam b
+    // it turns out that if you press b on the "do you want to donate the egg" dialog
+    // the game will put the egg in your inventory and not dontate it
+    // so we can use the same code as above, just execute it a bunch more times
+    // since there are 3? more dialogs that pop up
 
+    // press a once to interact with the basket
+    SEND_BUTTON_SEQUENCE(
+        { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
+        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
+    );
 
-        // press a once to interact with the basket
+    // then spam b for 50 cycles, aka 2 seconds
+    for (uint8_t i = 0; i < get_eggs ? 100 : 50; i++) {
         SEND_BUTTON_SEQUENCE(
-            { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
+            { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
             { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
         );
-
-        // then spam b for 50 cycles, aka 2 seconds
-        for (uint8_t i = 0; i < 50; i++) {
-            SEND_BUTTON_SEQUENCE(
-                { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
-                { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
-            );
-        } 
-    }
-    else {
-        // we're trying to pick up eggs from the basket
-        // we we press a once and then press it like 5 times more
-
-        beep(1);
-
-        SEND_BUTTON_SEQUENCE(
-            { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // "You peeked inside the basket" dialog
-        );
-
-        SINGLE_STEP(btn_buttons);
-
-        SEND_BUTTON_SEQUENCE(
-            { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Close dialog
-        );
-
-        SINGLE_STEP(btn_buttons);
-
-        SEND_BUTTON_SEQUENCE(
-            { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // "There is a egg inside!" Dialog
-        );
-
-        SINGLE_STEP(btn_buttons);
-
-        for (uint8_t i = 0; i < 5; i++) {
-            SEND_BUTTON_SEQUENCE(
-                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Close Dialog and open "Yes/No" Dialog
-            );
-
-            SINGLE_STEP(btn_buttons);
-
-            SEND_BUTTON_SEQUENCE(
-                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Choose "Yes" and open "You took the Egg!" Dialog
-            );
-
-            SINGLE_STEP(btn_buttons);
-
-            SEND_BUTTON_SEQUENCE(
-                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Close Dialog
-            );
-
-            SINGLE_STEP(btn_buttons);
-
-            SEND_BUTTON_SEQUENCE(
-                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // "There is something else" Dialog
-            );
-        }
-    }
+    } 
 }
 
 
@@ -322,7 +273,7 @@ int main() {
             }
             else if (presses == 2) {
                 SEND_BUTTON_SEQUENCE(
-                    { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	1  },
+                    { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	1 },
                     { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 },
                 );
             }
@@ -363,6 +314,10 @@ int main() {
                 bool cancel = false;
                 uint8_t binaryCounter = 0;
                 PORTC = binaryCounter & 0x3F;
+
+                // test me, if the button was pressed in time, we want to farm eggs instead of items
+                bool getEggs = delay(500, 250, 1000, btn_make_sandwich) > 0;
+
                 for (;;) {
                     set_leds(RX_LED);
                     send_current();
@@ -434,7 +389,7 @@ int main() {
                             // so we pass facingBasket as false
                             // and set it to true afterwards, so that the function knows that we're facing the basket
                             // and doesnt try to turn towards it
-                            get_items_or_eggs_from_basket(facingBasket, false);
+                            get_items_or_eggs_from_basket(facingBasket, getEggs);
                             // set facingBasket to true
                             facingBasket = true;
 
