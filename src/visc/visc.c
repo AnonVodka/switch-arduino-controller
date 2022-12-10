@@ -16,7 +16,7 @@ pin_t led_input_type        = { PIN_INPUT_TYPE,     _PORTB, true    };      // l
 ulong_t lastSandwich = 0; 
 ulong_t lastPickup = 0;
 
-void change_wallpaper() {
+/* void change_wallpaper() {
     
     // press a and wait 5 cycles
     SEND_BUTTON_SEQUENCE(
@@ -57,7 +57,7 @@ void change_wallpaper() {
         { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	10   },
     );
 
-}
+} */
 
 void make_egg_sandwich() {
     /*
@@ -81,11 +81,15 @@ void make_egg_sandwich() {
     );
     // choose "great peanut butter sandwhich"
     // wait 8 seconds for the sandwhich to be made
+    for (uint8_t i = 0; i < 7;i++) {
+        SEND_BUTTON_SEQUENCE(
+            {BT_NONE, DP_BOTTOM, SEQ_MASH, 1},
+            {BT_NONE, DP_NEUTRAL, SEQ_HOLD, 1}
+        )
+    }
+
     SEND_BUTTON_SEQUENCE(
-        { BT_NONE,  DP_BOTTOM,  SEQ_MASH,   7   }, // got down
-        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   3   },
-        //{ BT_NONE,  DP_RIGHT,   SEQ_MASH,   1   }, // go right
-        //{ BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   2   },
+        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   5   },
         { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   }, // choose sandwich
         { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   15  },
         { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   }, // choose pick
@@ -210,16 +214,14 @@ void get_items_or_eggs_from_basket(bool facing_basket, bool get_eggs) {
         { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
     );
 
-    // then spam b for 50 cycles, aka 2 seconds
-    for (uint8_t i = 0; i < get_eggs ? 100 : 50; i++) {
+    // then spam b for 50 cycles, aka 2 seconds or 100 cycles, aka 4 seconds, when we're trying to get eggs
+    for (uint8_t i = 0; i < (get_eggs ? 100 : 50); i++) {
         SEND_BUTTON_SEQUENCE(
             { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
             { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
         );
     } 
 }
-
-
 
 int main() {
 
@@ -283,8 +285,9 @@ int main() {
                     { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 },
                 );
             }
+
             else if (presses == 4) {
-                get_items_or_eggs_from_basket(true, true);
+                get_items_or_eggs_from_basket(true, false);
             }
             
             else if (presses == 5) {
@@ -292,9 +295,7 @@ int main() {
             }
             
             else if (presses == 6) {
-                //for (uint8_t i = 0; i < 32; i++) {
-                    change_wallpaper();
-                //}
+                face_table();
             }
         }
         else if (button_held(btn_make_sandwich)) {
@@ -313,10 +314,21 @@ int main() {
                 bool facingBasket = false;
                 bool cancel = false;
                 uint8_t binaryCounter = 0;
+
+                for (uint8_t k = 0; k < 12; k++) {
+                    if (k < 6)
+                        PORTC = 1 << k; 
+                    else
+                        PORTC = 1 << 11 - k;
+                    _delay_ms(100);
+                }
+
                 PORTC = binaryCounter & 0x3F;
 
                 // test me, if the button was pressed in time, we want to farm eggs instead of items
-                bool getEggs = delay(500, 250, 1000, btn_make_sandwich) > 0;
+                bool getEggs = delay(500, 250, 2000, btn_make_sandwich) > 0;
+
+                set_pin(led_input_type, getEggs);
 
                 for (;;) {
                     set_leds(RX_LED);
@@ -428,11 +440,9 @@ int main() {
     
         else if (button_held(btn_switch_to_virt)) {
             switch_controller(REAL_TO_VIRT);
-            set_pin(led_input_type, true);
         }
         else if (button_held(btn_switch_to_real)) {
             switch_controller(VIRT_TO_REAL);
-            set_pin(led_input_type, false);
         }
     }
 }
