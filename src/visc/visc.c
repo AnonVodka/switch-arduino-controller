@@ -6,7 +6,7 @@
 #include "user-io.h"
 #include "utils.h"
 
-pin_t btn_refresh_dais      = { PIN_MAIN_BUTTON,    _PORTD, false   };      // black wire
+pin_t btn_refresh_dailies      = { PIN_MAIN_BUTTON,    _PORTD, false   };      // black wire
 pin_t btn_make_sandwich     = { PIN_TEST_BUTTON,    _PORTD, false   };      // white wire
 pin_t btn_buttons           = { PIN_TEST_BUTTON2,   _PORTD, false   };      // gray wire
 pin_t btn_switch_to_virt    = { PIN_TEST_BUTTON3,   _PORTD, false   };      // purple wire
@@ -81,10 +81,10 @@ void make_egg_sandwich() {
     );
     // choose "great peanut butter sandwhich"
     // wait 8 seconds for the sandwhich to be made
-    for (uint8_t i = 0; i < 7;i++) {
+    for (uint8_t i = 0; i < 7; i++) {
         SEND_BUTTON_SEQUENCE(
-            {BT_NONE, DP_BOTTOM, SEQ_MASH, 1},
-            {BT_NONE, DP_NEUTRAL, SEQ_HOLD, 1}
+            { BT_NONE,  DP_BOTTOM,  SEQ_MASH, 1 },
+            { BT_NONE,  DP_NEUTRAL, SEQ_HOLD, 3 }
         )
     }
 
@@ -240,7 +240,7 @@ int main() {
 	init_pin(led_pin);
 	init_pin(buzzer_pin);
 
-	init_pin(btn_refresh_dais);
+	init_pin(btn_refresh_dailies);
 	init_pin(btn_switch_to_virt);
 	init_pin(btn_buttons);
 	init_pin(btn_make_sandwich);
@@ -251,14 +251,14 @@ int main() {
 	beep(1);
     
 	/* Wait for the user to press the button */
-	count_button_presses(100, 100, btn_refresh_dais);
+	count_button_presses(100, 100, btn_refresh_dailies);
 	beep(2);
 
     for (;;) { 
 		set_leds(BOTH_LEDS);
         pause_automation();
 
-        if (button_held(btn_refresh_dais)) {
+        if (button_held(btn_refresh_dailies)) {
             beep(1);
             change_clock_day(false, 1);
             beep(1);
@@ -313,7 +313,7 @@ int main() {
                 // loop
                 bool facingBasket = false;
                 bool cancel = false;
-                uint8_t binaryCounter = 0;
+                uint8_t sandwichesMade = 0;
 
                 for (uint8_t k = 0; k < 12; k++) {
                     if (k < 6)
@@ -323,7 +323,7 @@ int main() {
                     _delay_ms(100);
                 }
 
-                PORTC = binaryCounter & 0x3F;
+                PORTC = sandwichesMade & 0x3F;
 
                 // test me, if the button was pressed in time, we want to farm eggs instead of items
                 bool getEggs = delay(500, 250, 2000, btn_make_sandwich) > 0;
@@ -426,10 +426,10 @@ int main() {
 
                     // increase our binary counter, so we know how many times we've run this loop
                     // since we only have 6 leds, the highest number we can output is 2^6 = 64-1 = 63
-                    if (binaryCounter < 64) {
+                    if (sandwichesMade < 64) {
                         // output the number on the leds
-                        PORTC = binaryCounter & 0x3F; // 0x3F = 0011 1111 = 63 
-                        binaryCounter++;
+                        PORTC = sandwichesMade & 0x3F; // 0x3F = 0011 1111 = 63 
+                        sandwichesMade++;
                     }
 
                     if (cancel)
