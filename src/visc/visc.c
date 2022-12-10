@@ -6,15 +6,58 @@
 #include "user-io.h"
 #include "utils.h"
 
-pin_t refresh_raids_btn     = { PIN_MAIN_BUTTON,    _PORTD, false   };      // black wire
-pin_t make_sandwich         = { PIN_TEST_BUTTON,    _PORTD, false   };      // white wire
-pin_t a_button              = { PIN_TEST_BUTTON2,   _PORTD, false   };      // gray wire
-pin_t switch_to_virt        = { PIN_TEST_BUTTON3,   _PORTD, false   };      // purple wire
-pin_t switch_to_real        = { PIN_SWITCH_INPUT,   _PORTD, false   };      // blue wire
-pin_t input_type            = { PIN_INPUT_TYPE,     _PORTB, true    };      // led
+pin_t btn_refresh_dais      = { PIN_MAIN_BUTTON,    _PORTD, false   };      // black wire
+pin_t btn_make_sandwich     = { PIN_TEST_BUTTON,    _PORTD, false   };      // white wire
+pin_t btn_buttons           = { PIN_TEST_BUTTON2,   _PORTD, false   };      // gray wire
+pin_t btn_switch_to_virt    = { PIN_TEST_BUTTON3,   _PORTD, false   };      // purple wire
+pin_t btn_switch_to_real    = { PIN_SWITCH_INPUT,   _PORTD, false   };      // blue wire
+pin_t led_input_type        = { PIN_INPUT_TYPE,     _PORTB, true    };      // led
 
 ulong_t lastSandwich = 0; 
 ulong_t lastPickup = 0;
+
+void change_wallpaper() {
+    
+    // press a and wait 5 cycles
+    SEND_BUTTON_SEQUENCE(
+        { BT_A,		DP_NEUTRAL,	SEQ_MASH,	1   },	
+        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	5   },
+    );
+
+    // go down once and wait 5 cycles and press a
+    SEND_BUTTON_SEQUENCE(
+        { BT_NONE,	DP_BOTTOM,	SEQ_MASH,	1   },	
+        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	2   },
+        { BT_A,		DP_NEUTRAL,	SEQ_MASH,	1   },	
+        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	10   },
+    );
+
+    // go up 6 times and wait 2 cycles in between each press
+    // it just skips 1 button press alltogether, no matter the delay lol
+    SEND_BUTTON_SEQUENCE(
+        { BT_NONE, DP_TOP, SEQ_HOLD, 1 },
+        { BT_NONE, DP_NEUTRAL, SEQ_HOLD, 10},
+        { BT_NONE, DP_TOP, SEQ_HOLD, 1 },
+        { BT_NONE, DP_NEUTRAL, SEQ_HOLD, 10},
+        { BT_NONE, DP_TOP, SEQ_HOLD, 1 },
+        { BT_NONE, DP_NEUTRAL, SEQ_HOLD, 10},
+        { BT_NONE, DP_TOP, SEQ_HOLD, 1 },
+        { BT_NONE, DP_NEUTRAL, SEQ_HOLD, 10},
+        { BT_NONE, DP_TOP, SEQ_HOLD, 1 },
+        { BT_NONE, DP_NEUTRAL, SEQ_HOLD, 10},
+        { BT_NONE, DP_TOP, SEQ_HOLD, 1 },
+        { BT_NONE, DP_NEUTRAL, SEQ_HOLD, 10},
+    )
+
+    // press a to select wallpaper wait 5 cycles and press r once to go to the right
+    SEND_BUTTON_SEQUENCE(
+        { BT_A,		DP_NEUTRAL,	SEQ_MASH,	1   },	
+        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	10   },
+        { BT_R,		DP_NEUTRAL,	SEQ_MASH,	1   },	
+        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	10   },
+    );
+
+}
 
 void make_egg_sandwich() {
     /*
@@ -26,38 +69,32 @@ void make_egg_sandwich() {
         - down, down, right, a, 15, a, 75, stick up 1.5s, hold a, stick down 1.5s, repeat 3 times, stay dont, a, 50, a, 250, a, repeat
     */
 
-    //interact with table
-    //    - a, 25 delay
+    // interact with table
     SEND_BUTTON_SEQUENCE(
         { BT_A,		DP_NEUTRAL,	SEQ_MASH,	1  },	
         { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	27 },
     );
-    //choose "make a sandwhich"
-    //    - a, 4 second delay
-    // 1 cycle = 40ms
-    // 4s = 100 cycles
+    // choose "make a sandwhich"
     SEND_BUTTON_SEQUENCE(
         { BT_A,		DP_NEUTRAL,	SEQ_MASH,	1  },	
         { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	100 },
     );
-    //choose "great peanut butter sandwhich"
-    //    - down, down, right, a, 15, a, 200, 
+    // choose "great peanut butter sandwhich"
     // wait 8 seconds for the sandwhich to be made
     SEND_BUTTON_SEQUENCE(
-        { BT_NONE,  DP_BOTTOM,  SEQ_MASH,   2   },
+        { BT_NONE,  DP_BOTTOM,  SEQ_MASH,   5   }, // got down
+        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   3   },
+        { BT_NONE,  DP_RIGHT,   SEQ_MASH,   1   }, // go right
         { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   2   },
-        { BT_NONE,  DP_RIGHT,   SEQ_MASH,   1   },
-        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   2   },
-        { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   },
+        { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   }, // choose sandwich
         { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   15  },
-        { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   },
-        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   200  }
+        { BT_A,     DP_NEUTRAL, SEQ_MASH,   1   }, // choose pick
+        { BT_NONE,  DP_NEUTRAL, SEQ_HOLD,   200 }
     );
 
 
     // put ingredients on the bread
     //    - stick up 600ms, hold a, stick down 520ms, repeat 3 times, stay down
-    // 1 cycle = 40ms
     for (uint8_t i = 0; i < 3; i++) {
         // move the left stick up for 15 cycles, aka 600ms
         // if we're on the second or third iteration
@@ -152,7 +189,7 @@ void face_table() {
     pause_automation();
 }
 
-void get_items_from_basket(bool facing_basket) {
+void get_items_or_eggs_from_basket(bool facing_basket, bool get_eggs) {
     // if you look from the initial postion of when the player started the picnic,
     // the player needs to be on the left side of the basket, facing the the table
 
@@ -160,20 +197,78 @@ void get_items_from_basket(bool facing_basket) {
     if (!facing_basket)
         face_basket();
 
-    // press a once to interact with the basket
-    SEND_BUTTON_SEQUENCE(
-        { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
-        { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 },
-    );
+    if (!get_eggs) {
+        // we dont want to get any eggs from the basket
+        // so we can press a once and then spam b
+        // since there wont be a popup asking us if we want to pick the item up
+        // this is used for the egg item duplication glitch
 
-    // then spam b for 50 cycles, aka 2 seconds
-    for (uint8_t i = 0; i < 50; i++) {
+
+        // press a once to interact with the basket
         SEND_BUTTON_SEQUENCE(
-            { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
-            { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 },
+            { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
+            { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
         );
-    } 
+
+        // then spam b for 50 cycles, aka 2 seconds
+        for (uint8_t i = 0; i < 50; i++) {
+            SEND_BUTTON_SEQUENCE(
+                { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 },	// fast forward dialog box
+                { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 }
+            );
+        } 
+    }
+    else {
+        // we're trying to pick up eggs from the basket
+        // we we press a once and then press it like 5 times more
+
+        beep(1);
+
+        SEND_BUTTON_SEQUENCE(
+            { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // "You peeked inside the basket" dialog
+        );
+
+        SINGLE_STEP(btn_buttons);
+
+        SEND_BUTTON_SEQUENCE(
+            { BT_B,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Close dialog
+        );
+
+        SINGLE_STEP(btn_buttons);
+
+        SEND_BUTTON_SEQUENCE(
+            { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // "There is a egg inside!" Dialog
+        );
+
+        SINGLE_STEP(btn_buttons);
+
+        for (uint8_t i = 0; i < 5; i++) {
+            SEND_BUTTON_SEQUENCE(
+                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Close Dialog and open "Yes/No" Dialog
+            );
+
+            SINGLE_STEP(btn_buttons);
+
+            SEND_BUTTON_SEQUENCE(
+                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Choose "Yes" and open "You took the Egg!" Dialog
+            );
+
+            SINGLE_STEP(btn_buttons);
+
+            SEND_BUTTON_SEQUENCE(
+                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // Close Dialog
+            );
+
+            SINGLE_STEP(btn_buttons);
+
+            SEND_BUTTON_SEQUENCE(
+                { BT_A,		DP_NEUTRAL,	SEQ_HOLD,	3 }, // "There is something else" Dialog
+            );
+        }
+    }
 }
+
+
 
 int main() {
 
@@ -192,32 +287,32 @@ int main() {
 	init_pin(led_pin);
 	init_pin(buzzer_pin);
 
-	init_pin(refresh_raids_btn);
-	init_pin(switch_to_virt);
-	init_pin(a_button);
-	init_pin(make_sandwich);
-    init_pin(switch_to_real);
-	init_pin(input_type);
+	init_pin(btn_refresh_dais);
+	init_pin(btn_switch_to_virt);
+	init_pin(btn_buttons);
+	init_pin(btn_make_sandwich);
+    init_pin(btn_switch_to_real);
+	init_pin(led_input_type);
 
 	/* Initial beep to confirm that the buzzer works */
 	beep(1);
     
 	/* Wait for the user to press the button */
-	count_button_presses(100, 100, refresh_raids_btn);
+	count_button_presses(100, 100, btn_refresh_dais);
 	beep(2);
 
     for (;;) { 
 		set_leds(BOTH_LEDS);
         pause_automation();
 
-        if (button_held(refresh_raids_btn)) {
+        if (button_held(btn_refresh_dais)) {
             beep(1);
             change_clock_day(false, 1);
             beep(1);
         }
-        else if (button_held(a_button)) {
+        else if (button_held(btn_buttons)) {
             beep(3);
-            uint8_t presses = count_button_presses(100, 100, a_button);
+            uint8_t presses = count_button_presses(100, 100, btn_buttons);
             beep(presses);
             if (presses == 1) {
                 SEND_BUTTON_SEQUENCE(
@@ -237,10 +332,23 @@ int main() {
                     { BT_NONE,	DP_NEUTRAL,	SEQ_HOLD,	1 },
                 );
             }
+            else if (presses == 4) {
+                get_items_or_eggs_from_basket(true, true);
+            }
+            
+            else if (presses == 5) {
+                face_basket();
+            }
+            
+            else if (presses == 6) {
+                //for (uint8_t i = 0; i < 32; i++) {
+                    change_wallpaper();
+                //}
+            }
         }
-        else if (button_held(make_sandwich)) {
+        else if (button_held(btn_make_sandwich)) {
             beep(2);
-            uint8_t mode = count_button_presses(500, 500, make_sandwich);
+            uint8_t mode = count_button_presses(500, 500, btn_make_sandwich);
 
             if (mode == 1) {
                 set_leds(RX_LED);
@@ -274,7 +382,7 @@ int main() {
                     static ulong_t lastLedSwitch = 0;
                     uint8_t count = 0;
                     do {
-                        if (button_held(make_sandwich)) {
+                        if (button_held(btn_make_sandwich)) {
                             // if we ever press the button within those 30 minutes
                             // we stop the loop
                             beep(4);
@@ -326,7 +434,7 @@ int main() {
                             // so we pass facingBasket as false
                             // and set it to true afterwards, so that the function knows that we're facing the basket
                             // and doesnt try to turn towards it
-                            get_items_from_basket(facingBasket);
+                            get_items_or_eggs_from_basket(facingBasket, false);
                             // set facingBasket to true
                             facingBasket = true;
 
@@ -363,13 +471,13 @@ int main() {
             }            
         }
     
-        else if (button_held(switch_to_virt)) {
+        else if (button_held(btn_switch_to_virt)) {
             switch_controller(REAL_TO_VIRT);
-            set_pin(input_type, true);
+            set_pin(led_input_type, true);
         }
-        else if (button_held(switch_to_real)) {
+        else if (button_held(btn_switch_to_real)) {
             switch_controller(VIRT_TO_REAL);
-            set_pin(input_type, false);
+            set_pin(led_input_type, false);
         }
     }
 }

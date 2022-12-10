@@ -23,6 +23,8 @@
 /* Indicates how long the led should stay on */
 #define DELAY_BETWEEN_BLINK_SIGNALS 25
 
+#define SINGLE_STEP(pin) pause_automation(); count_button_presses(500, 500, pin)
+
 /*
 DDRx - "Data Direction Register": Legt die Richtung der Daten fest, d.h. entweder lesen oder schreiben
 PORTx - "Port Data Register": liest bzw. schreibt Daten vom bzw. zum Port
@@ -120,6 +122,5 @@ uint8_t delay(uint16_t led_on_time_ms, uint16_t led_off_time_ms, uint16_t delay_
  * Emit a brief beep the buzzer.
  */
 void beep(uint8_t amt);
-
 
 #endif

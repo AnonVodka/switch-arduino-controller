@@ -10,7 +10,13 @@ image = parser.parse_args().image
 
 while True:
     input(f"Press enter to compile {image}...")
-    run(f"make {image}.hex".split(" "))
+    res = run(f"make {image}.hex".split(" "), capture_output=True, text=True)
+    print(res.stdout)
+    if res.returncode != 0 and len(res.stderr) > 0:
+        print("ERROR: ")
+        print(res.stderr)
+        # error when compiling, restart loop to recompile
+        continue
 
     input("\n"*3 + f"Press enter to flash {image}...")
     run(f"make flash-{image}".split(" "))
