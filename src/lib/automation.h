@@ -67,11 +67,11 @@ struct stick_coord {
 
 /* D-pad state */
 enum d_pad_state {
-    DP_TOP = 0,
+    DP_UP = 0,
     DP_TOPRIGHT = 1,
     DP_RIGHT = 2,
     DP_BOTRIGHT = 3,
-    DP_BOTTOM = 4,
+    DP_DOWN = 4,
     DP_BOTLEFT = 5,
     DP_LEFT = 6,
     DP_TOPLEFT = 7,
@@ -127,7 +127,7 @@ void send_button_sequence(const struct button_d_pad_state sequence[], size_t seq
  * Macro to simplify the use of send_button_sequence.
  *
  * Example usage: SEND_BUTTON_SEQUENCE({ BUTTON_A, DP_NEUTRAL, SEQ_HOLD, 5},
- * { NO_BUTTONS, DP_TOP, SEQ_HOLD, 1 });
+ * { NO_BUTTONS, DP_UP, SEQ_HOLD, 1 });
  */
 #define SEND_BUTTON_SEQUENCE(FIRST_STATE, ...) \
 	send_button_sequence((struct button_d_pad_state[]){ \

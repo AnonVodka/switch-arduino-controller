@@ -21,7 +21,7 @@ void switch_controller(enum switch_mode mode)
 	   cursor is on the game icon */
 
 	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	6  },	/* Sleep button */
 		{ BT_NONE,		DP_LEFT,	SEQ_MASH,	2  },	/* Controllers button */
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter controllers settings */
@@ -37,7 +37,7 @@ void switch_controller(enum switch_mode mode)
 			{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Register as controller 1 */
 			{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	15 },	/* Wait for registration */
 
-			{ BT_HOME,			DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Return to the main menu */
+			{ BT_HOME,		DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Return to the main menu */
 			{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	25 },	/* Wait for the main menu */
 		);
 
@@ -74,22 +74,22 @@ void set_clock_to_manual_from_any(bool in_game)
 	}
 
 	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	6  },	/* Sleep button */
 		{ BT_NONE,		DP_LEFT,	SEQ_MASH,	1  },	/* Settings button */
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter settings */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	20 },	/* Wait for settings */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	15 },	/* Console settings */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	15 },	/* Console settings */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	1  },	/* Update console button */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait for cursor */
 
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	3  },	/* Language */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	3  },	/* Language */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
 
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter date/time */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait date/time menu */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	2  },	/* TZ if auto/time set if man */
-		{ BT_NONE,		DP_TOP,		SEQ_MASH,	1  },	/* auto/man if auto, TZ if man */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	2  },	/* TZ if auto/time set if man */
+		{ BT_NONE,		DP_UP,		SEQ_MASH,	1  },	/* auto/man if auto, TZ if man */
 		{ BT_A,			DP_NEUTRAL,	SEQ_MASH,	1  },	/* Set man if auto, else enter TZ */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait TZ menu, if any */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Wait for menu */
@@ -111,17 +111,17 @@ void set_clock_to_auto_from_manual(bool in_game)
 	}
 
 	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	6  },	/* Sleep button */
 		{ BT_NONE,		DP_LEFT,	SEQ_MASH,	1  },	/* Settings button */
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter settings */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	20 },	/* Wait for settings */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	15 },	/* Console settings */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	15 },	/* Console settings */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	1  },	/* Update console button */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait for cursor */
 
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	3  },	/* Language */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	3  },	/* Language */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
 
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter date/time */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait date/time menu */
@@ -143,17 +143,17 @@ void set_clock_to_manual_from_auto(bool in_game)
 	}
 
 	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	6  },	/* Sleep button */
 		{ BT_NONE,		DP_LEFT,	SEQ_MASH,	1  },	/* Settings button */
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter settings */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	20 },	/* Wait for settings */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	15 },	/* Console settings */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	15 },	/* Console settings */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	1  },	/* Update console button */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait for cursor */
 
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	3  },	/* Language */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	3  },	/* Language */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
 
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter date/time */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait date/time menu */
@@ -176,11 +176,11 @@ void change_clock_year(bool in_game, int8_t offset)
 
 	if (offset >= 0) {
 		/* Increment year */
-		button = DP_TOP;
+		button = DP_UP;
 		num = (uint8_t)offset;
 	} else {
 		/* Decrement year */
-		button = DP_BOTTOM;
+		button = DP_DOWN;
 		num = (uint8_t)(-offset);
 	}
 
@@ -189,21 +189,21 @@ void change_clock_year(bool in_game, int8_t offset)
 	}
 
 	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	1  },	/* Switch Online button or News button (< v11) */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	5  },	/* Switch Online button or News button (< v11) */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	6  },	/* Sleep button */
 		{ BT_NONE,		DP_LEFT,	SEQ_MASH,	1  },	/* Settings button */
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter settings */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	20 },	/* Wait for settings */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	15 },	/* Console settings */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	15 },	/* Console settings */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	1  },	/* Update console button */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait for cursor */
 		
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	3  },	/* Language */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	3  },	/* Language */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
 
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter date/time */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait date/time menu */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	2  },	/* Time set */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	2  },	/* Time set */
 		{ BT_A,			DP_NEUTRAL,	SEQ_MASH,	1  },	/* Enter time set */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Wait for menu */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	2  },	/* Go to year */
@@ -228,11 +228,11 @@ void change_clock_day(bool in_game, int8_t offset)
 
 	if (offset >= 0) {
 		/* Increment day */
-		button = DP_TOP;
+		button = DP_UP;
 		num = (uint8_t)offset;
 	} else {
 		/* Decrement day */
-		button = DP_BOTTOM;
+		button = DP_DOWN;
 		num = (uint8_t)(-offset);
 	}
 
@@ -241,26 +241,26 @@ void change_clock_day(bool in_game, int8_t offset)
 	}
 
 	SEND_BUTTON_SEQUENCE(
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	5  },	/* Switch Online button or News button (< v11) */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	5  },	/* Switch Online button or News button (< v11) */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	6  },	/* Sleep button */
 		{ BT_NONE,		DP_LEFT,	SEQ_MASH,	1  },	/* Settings button */
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter settings */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	20 },	/* Wait for settings */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	15 },	/* Console settings */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	15 },	/* Console settings */
 		{ BT_NONE,		DP_RIGHT,	SEQ_MASH,	1  },	/* Update console button */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait for cursor */
 		
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	3  },	/* Language */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	3  },	/* Language */
+		{ BT_NONE,		DP_DOWN,	SEQ_HOLD,	10  },	/* Scroll down to Date/Time */
 
 		{ BT_A,			DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Enter date/time */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	5  },	/* Wait date/time menu */
-		{ BT_NONE,		DP_BOTTOM,	SEQ_MASH,	2  },	/* Time set */
+		{ BT_NONE,		DP_DOWN,	SEQ_MASH,	2  },	/* Time set */
 		{ BT_A,			DP_NEUTRAL,	SEQ_MASH,	1  },	/* Enter time set */
 		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Wait for menu */
 		{ BT_NONE,		button,		SEQ_MASH,	num },	/* Change day */
-		{ BT_A,			DP_NEUTRAL,	SEQ_MASH,	5  },	/* Go to OK and click it */
-		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	2  },	/* Wait for menu */
+		{ BT_A,			DP_NEUTRAL,	SEQ_MASH,	6  },	/* Go to OK and click it */
+		{ BT_NONE,		DP_NEUTRAL,	SEQ_HOLD,	1  },	/* Wait for menu */
 	);
 
 	go_to_main_menu();

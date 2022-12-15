@@ -8,15 +8,40 @@ parser.add_argument("image", metavar="image to flash", type=str)
 
 image = parser.parse_args().image
 
-while True:
-    input(f"Press enter to compile {image}...")
+def flash():
+    run(f"make flash-{image}".split(" "))
+
+def compile() -> bool:
     res = run(f"make {image}.hex".split(" "), capture_output=True, text=True)
     print(res.stdout)
-    if res.returncode != 0 and len(res.stderr) > 0:
-        print("ERROR: ")
-        print(res.stderr)
-        # error when compiling, restart loop to recompile
-        continue
 
-    input("\n"*3 + f"Press enter to flash {image}...")
-    run(f"make flash-{image}".split(" "))
+    if len(res.stderr) > 0:
+        print(res.stderr)
+        if "Error 1" in res.stderr:
+        # error when compiling, restart loop to recompile
+            return True
+
+    return False
+
+
+while True:
+    user_input = input(f"-> 'q' to quit | 'c' to compile {image}.c | 'f' to flash {image}.hex | Enter to compile and flash | cc to clear screen\n")
+
+    if len(user_input) == 0:
+        input(f"Compiling {image}.c...")
+        if compile():
+            continue
+        input(f"Flashing {image}.hex...")
+        flash()
+
+    if user_input == "q":
+        break
+    elif user_input == "cc":
+        run(["clear"])
+    else:
+        if "c" in user_input:
+            if compile():
+                continue
+        if "f" in user_input:
+            flash()
+        
