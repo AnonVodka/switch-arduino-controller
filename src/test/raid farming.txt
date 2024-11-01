@@ -1,0 +1,17 @@
+1 cycle = 40ms
+25 cycles = 1s
+
+use wishing piece:
+    a a a a a a wait
+enter raid:
+    a d a a wait 30 secs
+first attack:
+    a d d d a a wait 60 secs
+following attacks:
+    a a a wait 60 secs
+fight over:
+    catch:
+        a a wait 35 secs a  wait 10 secs b b b b b wait 15 secs
+    no catch:
+        d a wait 5 secs a wait 10 secs
+    restart loop

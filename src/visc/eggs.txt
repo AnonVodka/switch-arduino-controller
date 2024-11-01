@@ -1,0 +1,51 @@
+starting conditions:
+    - party is empty except for the first slot, thats a pokemon with the flame body ability
+    - the box we are currently in is full of eggs
+    - the box we are currently in is the first box
+    - the cursor is on the first slot of the box
+    - the user is on koraidon/miradion
+
+egg farming:
+    - get eggs from box
+    - exit box
+    - hatch eggs
+        - handle popup boxes
+        - increase counter if egg hatched
+        - repeat until counter reaches 5
+    - put pokemon in box
+    - increase box column counter
+    - if box column counter is 6:
+        - increase box row counter
+        - set box column counter to 0
+        - go to next box
+    - repeat
+
+advance box if necessary:
+    - if column > 5
+        - press R to advance box
+        - set column to 0
+
+get eggs from box: 
+    - advance box if necessary
+    - move cursor [column] times to the right
+    - press minus to activate box selection
+    - move cursor down 4 fields
+    - press a to select 5 rows of eggs
+    - move cursor 1 field down and [column+1] times to the left
+    - press a to drop eggs in party
+
+put pokemon in box:
+    - move cursor 1 field down and 1 field to the left
+    - press minus to activate box selection
+    - move cursor down 4 fields
+    - press a to select 5 rows of pokemons
+    - move cursor 1 field up and [column+1] times to the right
+    - press a to drop pokemons in box
+
+open box:
+    - press x to open menu
+    - press a to open box
+
+exit box:
+    - press b to exit box
+    - press b to exit menu
